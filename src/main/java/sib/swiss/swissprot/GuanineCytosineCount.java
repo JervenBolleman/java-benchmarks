@@ -35,7 +35,7 @@ import org.openjdk.jmh.annotations.*;
 import java.nio.ByteBuffer;
 import java.util.Random;
 @State(Scope.Thread)
-public class MyBenchmark {
+public class GuanineCytosineCount {
     private static final int size = 2 * 1024 * 1024;
     private ByteBuffer dna;
     @Setup
