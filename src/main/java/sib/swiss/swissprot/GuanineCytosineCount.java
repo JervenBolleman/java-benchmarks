@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Oracle America, Inc.
+ * Copyright (c) 2016, Swiss Institute of Bioinformatics.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,58 @@
 
 package sib.swiss.swissprot;
 
-import org.openjdk.jmh.annotations.Benchmark;
-
+import org.openjdk.jmh.annotations.*;
+import java.nio.ByteBuffer;
+import java.util.Random;
+@State(Scope.Thread)
 public class MyBenchmark {
+    private static final int size = 2 * 1024 * 1024;
+    private ByteBuffer dna;
+    @Setup
+    public void setUp(){
+	dna = ByteBuffer.allocateDirect(size);
+	Random random = new Random();
+	for (int i=0;i<size;i++) {
+		float next = random.nextFloat();
+		if (next < 0.3) {
+			dna.put((byte) 'a');
+		} else if (next < 0.3) {
+			dna.put((byte) 't');
+		} else if (next < 0.8) {
+			dna.put((byte) 'c');
+		} else if (next < 0.99) {
+			dna.put((byte) 'g'); 
+		} else {
+			dna.put((byte) 'n');
+		}
+	}
+    }
+
+    @TearDown
+    public void tearDown(){
+	    dna=null;
+    }
 
     @Benchmark
-    public void testMethod() {
-        // This is a demo/sample template for building your JMH benchmarks. Edit as needed.
-        // Put your benchmark code here.
+    public int testMethod() {
+	int a=0,c=0,g=0,t =0,n =0;
+	for (int i=0;i<size;i++)
+	{
+		char nucleotide = (char) dna.get(i);
+
+		if (nucleotide == 'a')
+			a++;
+		if (nucleotide == 'c')
+			c++;
+		if (nucleotide == 't')
+			t++;
+		if (nucleotide == 'g')
+			g++;
+		if (nucleotide == 'n')
+			n++;
+
+	}
+	return a+c+g+t+n;
     }
 
 }
