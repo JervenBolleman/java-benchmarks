@@ -29,6 +29,25 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * There are two benchmark loops here. The first is a simple
+ * counting loop, the second uses an array lookup to avoid a 
+ * unpredicatable branch.
+ *
+ * However, the first if statements need not branch either.
+ * On X86 they could be compiled to something like this in asm
+ *  cmp  edi, 1 ; compare b to 1, assuming b is stored edi
+ *  lafh        ; puts the flags in the AH register.
+ *  shr 6, eax  ; move the 6th bit to the end
+ *  not eax     ; if equals then the ZF = 0 but we need it to be one,
+ *              ; don't care about the other bits
+ *  and eax, 1  ; if the 6th bit is true then we have 1 set else 0.
+ *              ; promote AH to the full eax register as well
+ *  add eax, r13; Add the 1 if true or 0 if false in the CMP to the
+ *              ; destination register r13.
+ * If this compilation is done the first method could even be faster 
+ * than the second.
+ **/
 package sib.swiss.swissprot;
 
 import org.openjdk.jmh.annotations.*;
