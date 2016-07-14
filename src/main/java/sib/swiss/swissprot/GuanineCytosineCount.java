@@ -82,8 +82,11 @@ public class GuanineCytosineCount {
 			n++;
 
 	}
-	return a+c+g+t+n;
+	int count =a+c+g+t+n;
+	assert count == size : "count should equals the array size";
+    	return count;
     }
+
     @Benchmark
     public int countUsingAnArray() {
 	int []nucleotides=new int[256];
@@ -92,6 +95,8 @@ public class GuanineCytosineCount {
 		byte nucleotide = dna.get(i);
 		nucleotides[nucleotide]++;
 	}
-	return nucleotides['a']+nucleotides['c']+nucleotides['g']+nucleotides['t']+nucleotides['n'];
+	int count = nucleotides['a']+nucleotides['c']+nucleotides['g']+nucleotides['t']+nucleotides['n'];
+	assert count == size : "count should equals the array size";
+	return count;
     }
 }
