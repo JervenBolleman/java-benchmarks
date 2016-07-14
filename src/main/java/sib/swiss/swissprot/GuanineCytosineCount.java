@@ -64,7 +64,7 @@ public class GuanineCytosineCount {
     }
 
     @Benchmark
-    public int testMethod() {
+    public int countUsingSimpleIfStatements() {
 	int a=0,c=0,g=0,t =0,n =0;
 	for (int i=0;i<size;i++)
 	{
@@ -85,7 +85,7 @@ public class GuanineCytosineCount {
 	return a+c+g+t+n;
     }
     @Benchmark
-    public int testUsingArray() {
+    public int countUsingAnArray() {
 	int []nucleotides=new int[256];
 	for (int i=0;i<size;i++)
 	{
