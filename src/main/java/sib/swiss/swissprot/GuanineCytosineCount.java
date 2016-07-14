@@ -84,5 +84,14 @@ public class MyBenchmark {
 	}
 	return a+c+g+t+n;
     }
-
+    @Benchmark
+    public int testUsingArray() {
+	int []nucleotides=new int[256];
+	for (int i=0;i<size;i++)
+	{
+		byte nucleotide = dna.get(i);
+		nucleotides[nucleotide]++;
+	}
+	return nucleotides['a']+nucleotides['c']+nucleotides['g']+nucleotides['t']+nucleotides['n'];
+    }
 }
