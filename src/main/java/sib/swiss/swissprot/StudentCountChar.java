@@ -33,18 +33,14 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
-
 @State(Scope.Thread)
-public class StudentCountChar
-{
+public class StudentCountChar {
 	Student[] students = new Student[2000];
 
 	@Setup
-	public void setUp()
-	{
+	public void setUp() {
 		Random r = new Random(42);
-		for (int i = 0; i < students.length; i++)
-		{
+		for (int i = 0; i < students.length; i++) {
 			if (r.nextBoolean())
 				students[i] = new Student('m');
 			else
@@ -53,34 +49,49 @@ public class StudentCountChar
 	}
 
 	@Benchmark
-	public int countMales()
-	{
+	public int countMales() {
 		int males = 0;
-		for (int i = 0; i < students.length; i++)
-		{
+		for (int i = 0; i < students.length; i++) {
 			males = males + (students[i].genderCode == 'm' ? 1 : 0);
 		}
 		return males;
 	}
 
 	@Benchmark
-	public int countFemales()
-	{
+	public int countFemales() {
 		int females = 0;
-		for (int i = 0; i < students.length; i++)
-		{
-			females = females + (students[i].genderCode == 'f' ? 0 : 1);
+		for (int i = 0; i < students.length; i++) {
+			females = females + (students[i].genderCode == 'f' ? 1 : 0);
 		}
 		return females;
 	}
 
-	private class Student
-	{
-		public Student(char genderCode)
-		{
+	@Benchmark
+	public int countBoth() {
+		int females = 0;
+		int males = 0;
+		for (int i = 0; i < students.length; i++) {
+			females = females + (students[i].genderCode == 'f' ? 1 : 0);
+			males = males + (students[i].genderCode == 'm' ? 1 : 0);
+		}
+		return females + males;
+	}
+
+	private class Student {
+		public Student(char genderCode) {
 			this.genderCode = genderCode;
 		}
 
 		char genderCode;
+	}
+
+	public static void main(String args[]) {
+		for (int i = 0; i < 10_000; i++) {
+			final StudentCountChar scc = new StudentCountChar();
+			scc.setUp();
+			System.err.println((scc.countBoth() == scc.students.length) + " all students are male or female");
+			System.err.println((scc.countMales() == scc.students.length) + " all students are male");
+			System.err.println((scc.countFemales() == scc.students.length) + " all students are female");
+		}
 	}
 }

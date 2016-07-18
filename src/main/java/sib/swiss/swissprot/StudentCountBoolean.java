@@ -70,6 +70,19 @@ public class StudentCountBoolean
 		}
 		return females;
 	}
+	
+	@Benchmark
+	public int countBoth()
+	{
+		int females = 0;
+		int males = 0;
+		for (int i = 0; i < students.length; i++)
+		{
+			females = females + (students[i].male ? 0 : 1);
+			males = males +(students[i].male ? 1 : 0);
+		}
+		return females + males;
+	}
 
 	private class Student
 	{
@@ -79,5 +92,15 @@ public class StudentCountBoolean
 		}
 
 		boolean male;
+	}
+	
+	public static void main(String args[]) {
+		for (int i = 0; i < 10_000; i++) {
+			final StudentCountBoolean scc = new StudentCountBoolean();
+			scc.setUp();
+			System.err.println((scc.countBoth() == scc.students.length) + " all students are male or female");
+			System.err.println((scc.countMales() == scc.students.length) + " all students are male");
+			System.err.println((scc.countFemales() == scc.students.length) + " all students are female");
+		}
 	}
 }

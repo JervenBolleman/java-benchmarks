@@ -74,6 +74,19 @@ public class StudentCountInteger
 		}
 		return females;
 	}
+	
+	@Benchmark
+	public int countBoth()
+	{
+		int females = students.length;
+		int males = 0;
+		for (int i = 0; i < students.length; i++)
+		{
+			females = females - students[i].genderCode;
+			males = males + students[i].genderCode;
+		}
+		return females + males;
+	}
 
 	private class Student
 	{
@@ -83,5 +96,15 @@ public class StudentCountInteger
 		}
 
 		int genderCode;
+	}
+	
+	public static void main(String args[]) {
+		for (int i = 0; i < 10_000; i++) {
+			final StudentCountInteger scc = new StudentCountInteger ();
+			scc.setUp();
+			System.err.println((scc.countBoth() == scc.students.length) + " all students are male or female");
+			System.err.println((scc.countMales() == scc.students.length) + " all students are male");
+			System.err.println((scc.countFemales() == scc.students.length) + " all students are female");
+		}
 	}
 }
