@@ -34,17 +34,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+
 @State(Scope.Thread)
-public class ClassHashCode {
+public class ClassNameHashCode
+{
 
 	private static final int ITERATIONS = 5;
 	private static final int INVOCATIONS = 50_000_000;
 	private Class<?>[] classes;
 	private static final Random random = new Random();
-	private Map<Class<?>, Counter> classCount;
+	private Map<String, Counter> classViaStringCount;
 
 	@Setup
-	public void setUp() {
+	public void setUp()
+	{
 		List<Class<?>> cl = new ArrayList<>();
 		cl.add(Boolean.class);
 		cl.add(Byte.class);
@@ -145,40 +148,45 @@ public class ClassHashCode {
 		cl.add(SafeVarargs.class);
 		cl.add(SuppressWarnings.class);
 		classes = cl.toArray(new Class<?>[] {});
-		classCount = new HashMap<>();
-		for (Class<?> clazz : classes) {
-			classCount.put(clazz, new Counter());
+		classViaStringCount = new HashMap<>();
+		for (Class<?> clazz : classes)
+		{
+			classViaStringCount.put(clazz.getName(), new Counter());
 		}
 	}
 
 	@TearDown
-	public void check() {
-		final int invocations = classCount.values().stream()
-				.mapToInt(Counter::getCount).sum();
-		assert invocations == ITERATIONS * 2 * INVOCATIONS || invocations == 0 : "expected "
-				+ INVOCATIONS + " got " + invocations;
-		classCount.clear();
+	public void check()
+	{
+		final int invocations2 = classViaStringCount.values().stream()
+		    .mapToInt(Counter::getCount).sum();
+		assert invocations2 == ITERATIONS * 2 * INVOCATIONS || invocations2 == 0 : "expected " + INVOCATIONS + " got "
+		    + invocations2;
+		classViaStringCount.clear();
 	}
 
 	@Benchmark
 	@Warmup(iterations = ITERATIONS, batchSize = INVOCATIONS)
 	@Measurement(iterations = 5, batchSize = INVOCATIONS)
 	@BenchmarkMode(Mode.SingleShotTime)
-	public void countClassSeenViaRandomSelection() {
+	public void countClassSeenViaRandomSelection()
+	{
 		Class<?> classToUse = classes[random.nextInt(classes.length)];
-		final Counter counter = classCount.get(classToUse);
+		final Counter counter = classViaStringCount.get(classToUse.getName());
 		counter.run();
-		// return classCount;
 	}
 
-	static class Counter {
+	static class Counter
+	{
 		private int count = 0;
 
-		void run() {
+		void run()
+		{
 			count = count + 1;
 		}
 
-		int getCount() {
+		int getCount()
+		{
 			return count;
 		}
 
