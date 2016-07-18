@@ -1,39 +1,29 @@
-/*
- * Copyright (c) 2016, Swiss Institute of Bioinformatics.
- * All rights reserved.
+/* Copyright (c) 2016, Swiss Institute of Bioinformatics. All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
  *
- *  * Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * * Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
  *
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * * Redistributions in binary form must reproduce the above copyright notice, this list of
+ * conditions and the following disclaimer in the documentation and/or other materials provided with
+ * the distribution.
  *
- *  * Neither the name of Oracle nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
- *    specific prior written permission.
+ * * Neither the name of Oracle nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-/**
- * Uses Class.hashCode to select a Counter to increment.
- * Aim is to test that Class.hashCode is no slower between
- * a Graal enabled JVM and an HotSpot one.
- **/
+/** Uses Class.hashCode to select a Counter to increment. Aim is to test that Class.hashCode is no
+ * slower between a Graal enabled JVM and an HotSpot one. **/
 package sib.swiss.swissprot;
 
 import org.openjdk.jmh.annotations.*;
@@ -44,17 +34,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+
 @State(Scope.Thread)
-public class ClassHashCode {
+public class ClassHashCode
+{
 
 	private static final int ITERATIONS = 5;
 	private static final int INVOCATIONS = 50_000_000;
 	private Class<?>[] classes;
 	private static final Random random = new Random();
 	private Map<Class<?>, Counter> classCount;
+	private Map<String, Counter> classViaStringCount;
 
 	@Setup
-	public void setUp() {
+	public void setUp()
+	{
 		List<Class<?>> cl = new ArrayList<>();
 		cl.add(Boolean.class);
 		cl.add(Byte.class);
@@ -156,38 +150,63 @@ public class ClassHashCode {
 		cl.add(SuppressWarnings.class);
 		classes = cl.toArray(new Class<?>[] {});
 		classCount = new HashMap<>();
-		for (Class<?> clazz : classes) {
+		classViaStringCount = new HashMap<>();
+		for (Class<?> clazz : classes)
+		{
 			classCount.put(clazz, new Counter());
+			classViaStringCount.put(clazz.getName(), new Counter());
 		}
 	}
 
 	@TearDown
-	public void check() {
+	public void check()
+	{
 		final int invocations = classCount.values().stream()
-				.mapToInt(Counter::getCount).sum();
-		assert invocations == ITERATIONS *2 * INVOCATIONS : "expected "+INVOCATIONS+" got " + invocations;
+		    .mapToInt(Counter::getCount).sum();
+		final int invocations2 = classViaStringCount.values().stream()
+		    .mapToInt(Counter::getCount).sum();
+		assert invocations == ITERATIONS * 2 * INVOCATIONS || invocations == 0 : "expected " + INVOCATIONS + " got "
+		    + invocations;
+		assert invocations2 == ITERATIONS * 2 * INVOCATIONS || invocations2 == 0 : "expected " + INVOCATIONS + " got "
+		    + invocations;
 		classCount.clear();
+		classViaStringCount.clear();
 	}
 
 	@Benchmark
 	@Warmup(iterations = ITERATIONS, batchSize = INVOCATIONS)
 	@Measurement(iterations = 5, batchSize = INVOCATIONS)
 	@BenchmarkMode(Mode.SingleShotTime)
-	public void countClassSeenViaRandomSelection() {
+	public void countClassSeenViaRandomSelection()
+	{
 		Class<?> classToUse = classes[random.nextInt(classes.length)];
 		final Counter counter = classCount.get(classToUse);
 		counter.run();
 //		return classCount;
 	}
 
-	static class Counter {
+	@Benchmark
+	@Warmup(iterations = ITERATIONS, batchSize = INVOCATIONS)
+	@Measurement(iterations = 5, batchSize = INVOCATIONS)
+	@BenchmarkMode(Mode.SingleShotTime)
+	public void countClassSeenViaRandomSelectionAndString()
+	{
+		Class<?> classToUse = classes[random.nextInt(classes.length)];
+		final Counter counter = classViaStringCount.get(classToUse.getName());
+		counter.run();
+	}
+
+	static class Counter
+	{
 		private int count = 0;
 
-		void run() {
+		void run()
+		{
 			count = count + 1;
 		}
 
-		int getCount() {
+		int getCount()
+		{
 			return count;
 		}
 
