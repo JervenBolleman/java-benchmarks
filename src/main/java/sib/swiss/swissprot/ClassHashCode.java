@@ -168,7 +168,7 @@ public class ClassHashCode
 		assert invocations == ITERATIONS * 2 * INVOCATIONS || invocations == 0 : "expected " + INVOCATIONS + " got "
 		    + invocations;
 		assert invocations2 == ITERATIONS * 2 * INVOCATIONS || invocations2 == 0 : "expected " + INVOCATIONS + " got "
-		    + invocations;
+		    + invocations2;
 		classCount.clear();
 		classViaStringCount.clear();
 	}
