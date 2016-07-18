@@ -118,11 +118,11 @@ public class GuanineCytosineCount
 		for (int i = 0; i < size; i++)
 		{
 			int nucleotide = dna.get(i);
-			a += (nucleotide == ADENINE) ? 0 : 1;
-			c += (nucleotide == CYTOSINE) ? 0 : 1;
-			t += (nucleotide == THREOSINE) ? 0 : 1;
-			g += (nucleotide == GUANINE) ? 0 : 1;
-			n += (nucleotide == ANY_NUCLEOTIDE) ? 0 : 1;
+			a += (nucleotide == ADENINE) ? 1 : 0;
+			c += (nucleotide == CYTOSINE) ? 1 : 0;
+			t += (nucleotide == THREOSINE) ? 1 : 0;
+			g += (nucleotide == GUANINE) ? 1 : 0;
+			n += (nucleotide == ANY_NUCLEOTIDE) ? 1 : 0;
 		}
 		int count = a + c + g + t + n;
 		assert count == size : "count should equals the array size";
@@ -166,7 +166,7 @@ public class GuanineCytosineCount
 		int[] nucleotides = new int[256];
 		for (int i = 0; i < size; i++)
 		{
-			byte nucleotide = dna.get(i);
+			int nucleotide = dna.get(i);
 			nucleotides[nucleotide]++;
 		}
 		int count = nucleotides['a'] + nucleotides['c'] + nucleotides['g'] + nucleotides['t'] + nucleotides['n'];
